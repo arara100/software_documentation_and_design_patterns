@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+
+{% block title %}{{ task.name }}{% endblock %}
+
+{% block breadcrumb %}
+<nav aria-label="breadcrumb" class="mb-3">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{{ url_for('tasks.index') }}">Задачі</a></li>
+    <li class="breadcrumb-item active">{{ task.name }}</li>
+  </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-start mb-4">
+  <div>
+    <h2 class="fw-bold mb-1">{{ task.name }}</h2>
+    <div class="d-flex gap-2 align-items-center">
+      {% if task.task_type == 'milestone' %}
+        <span class="badge" style="background:#6f42c1">milestone</span>
+      {% elif task.task_type == 'dependency' %}
+        <span class="badge bg-warning text-dark">dependency</span>
+      {% else %}
+        <span class="badge bg-primary">task</span>
+      {% endif %}
+      {% if task.is_critical %}<span class="badge bg-danger">Критична</span>{% endif %}
+      <span class="text-muted small">Проект #{{ task.project_id }}</span>
+    </div>
+  </div>
+  <div class="d-flex gap-2">
+    <a href="{{ url_for('tasks.edit', task_id=task.id) }}" class="btn btn-outline-primary">
+      <i class="bi bi-pencil me-1"></i>Редагувати
+    </a>
+    <form method="post" action="{{ url_for('tasks.delete', task_id=task.id) }}"
+          onsubmit="return confirm('Видалити задачу?')">
+      <button class="btn btn-outline-danger"><i class="bi bi-trash me-1"></i>Видалити</button>
+    </form>
+  </div>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-sm-3">
+    <div class="card text-center py-3">
+      <div class="h4 fw-bold mb-0">{{ task.duration }}</div>
+      <div class="text-muted small">Тривалість (дні)</div>
+    </div>
+  </div>
+  <div class="col-sm-3">
+    <div class="card text-center py-3">
+      <div class="h4 fw-bold mb-0 status-{{ task.status }}">
+        {% if task.status == 'pending' %}⏳
+        {% elif task.status == 'in_progress' %}🔄
+        {% elif task.status == 'completed' %}✅
+        {% elif task.status == 'on_hold' %}⏸
+        {% endif %}
+      </div>
+      <div class="text-muted small">{{ task.status }}</div>
+    </div>
+  </div>
+  <div class="col-sm-3">
+    <div class="card text-center py-3">
+      <div class="h4 fw-bold mb-0">{{ task.resources|length }}</div>
+      <div class="text-muted small">Ресурсів</div>
+    </div>
+  </div>
+  {% if task.dependency_type %}
+  <div class="col-sm-3">
+    <div class="card text-center py-3">
+      <div class="h6 fw-bold mb-0 text-warning">{{ task.dependency_type }}</div>
+      <div class="text-muted small">Тип залежності</div>
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+<!-- Quick status update -->
+<div class="card mb-4">
+  <div class="card-body">
+    <h6 class="card-title mb-3"><i class="bi bi-arrow-repeat me-2"></i>Оновити статус</h6>
+    <form method="post" action="{{ url_for('tasks.update_status', task_id=task.id) }}"
+          class="d-flex gap-2 align-items-center">
+      <select name="status" class="form-select form-select-sm w-auto">
+        {% for s in statuses %}
+        <option value="{{ s }}" {% if s == task.status %}selected{% endif %}>{{ s }}</option>
+        {% endfor %}
+      </select>
+      <button type="submit" class="btn btn-sm btn-primary">Зберегти</button>
+    </form>
+  </div>
+</div>
+
+<!-- Assigned resources -->
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h5 class="mb-0"><i class="bi bi-people me-2"></i>Призначені ресурси</h5>
+</div>
+
+{% if task.resources %}
+<div class="card mb-3">
+  <ul class="list-group list-group-flush">
+    {% for res in task.resources %}
+    <li class="list-group-item d-flex justify-content-between align-items-center">
+      <div>
+        <span class="fw-semibold">{{ res.name }}</span>
+        <span class="badge bg-secondary ms-2">{{ res.resource_type }}</span>
+        {% if res.role %}<span class="text-muted small ms-2">{{ res.role }}</span>{% endif %}
+        {% if res.skill_level %}<span class="badge bg-light text-dark ms-1">рівень {{ res.skill_level }}</span>{% endif %}
+        {% if res.quantity %}<span class="text-muted small ms-2">к-ть: {{ res.quantity }}</span>{% endif %}
+      </div>
+      <form method="post"
+            action="{{ url_for('tasks.remove_resource', task_id=task.id, resource_id=res.id) }}"
+            onsubmit="return confirm('Відкріпити ресурс?')">
+        <button class="btn btn-sm btn-outline-danger"><i class="bi bi-x-lg"></i></button>
+      </form>
+    </li>
+    {% endfor %}
+  </ul>
+</div>
+{% else %}
+<p class="text-muted">Ресурсів ще не призначено.</p>
+{% endif %}
+
+<!-- Assign resource -->
+{% set unassigned_resources = all_resources | rejectattr('id', 'in', assigned_ids) | list %}
+{% if unassigned_resources %}
+<div class="card">
+  <div class="card-body">
+    <h6 class="card-title mb-3"><i class="bi bi-person-plus me-2"></i>Призначити ресурс</h6>
+    <form method="post" action="{{ url_for('tasks.assign_resource', task_id=task.id) }}"
+          class="d-flex gap-2 align-items-center">
+      <select name="resource_id" class="form-select form-select-sm w-auto">
+        {% for res in unassigned_resources %}
+        <option value="{{ res.id }}">{{ res.name }} ({{ res.resource_type }})</option>
+        {% endfor %}
+      </select>
+      <button type="submit" class="btn btn-sm btn-success">
+        <i class="bi bi-plus-lg me-1"></i>Призначити
+      </button>
+    </form>
+  </div>
+</div>
+{% endif %}
+{% endblock %}
