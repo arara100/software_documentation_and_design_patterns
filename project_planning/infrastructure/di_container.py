@@ -1,4 +1,5 @@
 from infrastructure.database import get_session
+from infrastructure.output_strategy_factory import create_output_strategy
 from data_access.repositories.project_repository import ProjectRepository
 from data_access.repositories.task_repository import TaskRepository
 from data_access.repositories.resource_repository import ResourceRepository
@@ -22,6 +23,7 @@ class DIContainer:
         self._task_repo = TaskRepository(self._session)
         self._resource_repo = ResourceRepository(self._session)
         self._csv_reader = CsvReader()
+        self._output_strategy = create_output_strategy()
 
     # ------------------------------------------------------------------ #
     # Public factory methods return BLL service typed against interfaces  #
@@ -42,4 +44,5 @@ class DIContainer:
             self._task_repo,
             self._resource_repo,
             self._csv_reader,
+            self._output_strategy,
         )
