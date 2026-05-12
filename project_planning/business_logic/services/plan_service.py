@@ -2,7 +2,6 @@ from datetime import datetime
 from typing import Dict, List, Optional
 
 from business_logic.interfaces.i_plan_service import IPlanService
-from business_logic.interfaces.i_output_strategy import IOutputStrategy
 from data_access.interfaces.i_project_repository import IProjectRepository
 from data_access.interfaces.i_task_repository import ITaskRepository
 from data_access.interfaces.i_resource_repository import IResourceRepository
@@ -24,13 +23,11 @@ class PlanService(IPlanService):
         task_repo: ITaskRepository,
         resource_repo: IResourceRepository,
         csv_reader: ICsvReader,
-        output_strategy: IOutputStrategy,
     ) -> None:
         self._project_repo = project_repo
         self._task_repo = task_repo
         self._resource_repo = resource_repo
         self._csv_reader = csv_reader
-        self._output_strategy = output_strategy
 
     # ------------------------------------------------------------------ #
 
@@ -131,14 +128,12 @@ class PlanService(IPlanService):
                 self._task_repo.assign_resource(db_t_id, db_r_id)
                 created_assignments += 1
 
-        stats = {
+        return {
             "projects": len(project_objs),
             "tasks": len(task_objs),
             "resources": len(resource_objs),
             "assignments": created_assignments,
         }
-        self._output_strategy.output(stats)
-        return stats
 
     def export_plan(self, project_id: int) -> Optional[Dict]:
         project = self._project_repo.get_by_id(project_id)
@@ -163,7 +158,7 @@ class PlanService(IPlanService):
             for t in tasks
         ]
 
-        plan = {
+        return {
             "project": {
                 "id": project.id,
                 "name": project.name,
@@ -173,5 +168,3 @@ class PlanService(IPlanService):
             "tasks": task_data,
             "total_tasks": len(tasks),
         }
-        self._output_strategy.output(plan)
-        return plan
