@@ -1,0 +1,8 @@
+# macOS
+.DS_Store
+
+# Local Python environment
+.venv/
+
+# Firebase service account key (must stay local only)
+project_planning/lab4-eb656-firebase-adminsdk-fbsvc-c4ef5cf1bb.json

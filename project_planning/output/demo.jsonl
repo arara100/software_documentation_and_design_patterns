@@ -1,0 +1,3 @@
+{"timestamp": "2026-05-12T13:24:46.391868", "message": "💡 Друга стратегія: вивід в файл", "type": "text"}
+{"timestamp": "2026-05-12T13:24:46.392179", "type": "statistics", "data": {"реалізація": "FileOutputStrategy", "призначення": "запис у JSONL файл", "формат": "JSON Lines (один JSON об'єкт на рядок)", "приклад_команди": "OUTPUT_STRATEGY=file python scripts/..."}}
+{"timestamp": "2026-05-12T13:24:46.392370", "type": "list", "items": ["Читання даних з CSV", "Обробка даних в PlanService", "Вивід через OutputStrategy", "Запис у файл JSONL"]}
