@@ -1,0 +1,5 @@
+{"timestamp": "2026-05-12T13:23:47.674311", "message": "🚀 Запуск тестування OutputStrategy паттерну", "type": "text"}
+{"timestamp": "2026-05-12T13:23:47.674483", "message": "📝 CSV файл: /Users/aararaaararv2gmail.com/Desktop/labs/software_documentation_and_design_patterns/project_planning/data/data.csv", "type": "text"}
+{"timestamp": "2026-05-12T13:23:47.678816", "message": "📂 Читання CSV файлу: /Users/aararaaararv2gmail.com/Desktop/labs/software_documentation_and_design_patterns/project_planning/data/data.csv", "type": "text"}
+{"timestamp": "2026-05-12T13:23:51.270973", "type": "statistics", "data": {"projects": 60, "tasks": 840, "resources": 250, "assignments": 1709}}
+{"timestamp": "2026-05-12T13:23:51.272032", "type": "list", "items": ["Реалізувати REST API", "Написати модульні тести", "Налаштувати DevOps", "Документувати код"]}

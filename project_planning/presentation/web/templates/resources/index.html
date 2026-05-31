@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block title %}Ресурси{% endblock %}
+
+{% block breadcrumb %}
+<nav aria-label="breadcrumb" class="mb-3">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item active">Ресурси</li>
+  </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h2 class="fw-bold mb-0"><i class="bi bi-people me-2 text-primary"></i>Ресурси</h2>
+  <a href="{{ url_for('resources.create') }}" class="btn btn-primary">
+    <i class="bi bi-plus-lg me-1"></i>Новий ресурс
+  </a>
+</div>
+
+{% if resources %}
+<div class="row mb-3 g-2">
+  <div class="col-auto">
+    <span class="badge bg-primary fs-6">
+      Людські: {{ resources | selectattr('resource_type', 'equalto', 'human') | list | length }}
+    </span>
+  </div>
+  <div class="col-auto">
+    <span class="badge bg-secondary fs-6">
+      Матеріальні: {{ resources | selectattr('resource_type', 'equalto', 'material') | list | length }}
+    </span>
+  </div>
+</div>
+
+<div class="card">
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead class="table-light">
+        <tr>
+          <th>#</th><th>Назва</th><th>Тип</th><th>Роль / К-ть</th>
+          <th>Рівень навичок</th><th class="text-end">Дії</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for res in resources %}
+        <tr>
+          <td class="text-secondary">{{ res.id }}</td>
+          <td class="fw-semibold">{{ res.name }}</td>
+          <td>
+            {% if res.resource_type == 'human' %}
+              <span class="badge bg-primary"><i class="bi bi-person me-1"></i>Людський</span>
+            {% else %}
+              <span class="badge bg-secondary"><i class="bi bi-box me-1"></i>Матеріальний</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if res.resource_type == 'human' %}
+              {{ res.role or '—' }}
+            {% else %}
+              {{ res.quantity or '—' }} одиниць
+            {% endif %}
+          </td>
+          <td>
+            {% if res.skill_level %}
+              <div class="progress" style="width:80px;height:6px">
+                <div class="progress-bar" style="width:{{ res.skill_level * 10 }}%"></div>
+              </div>
+              <small class="text-muted">{{ res.skill_level }}/10</small>
+            {% else %}—{% endif %}
+          </td>
+          <td class="text-end">
+            <a href="{{ url_for('resources.edit', resource_id=res.id) }}"
+               class="btn btn-sm btn-outline-primary" title="Редагувати">
+              <i class="bi bi-pencil"></i>
+            </a>
+            <form method="post"
+                  action="{{ url_for('resources.delete', resource_id=res.id) }}"
+                  class="d-inline"
+                  onsubmit="return confirm('Видалити ресурс «{{ res.name }}»?')">
+              <button class="btn btn-sm btn-outline-danger" title="Видалити">
+                <i class="bi bi-trash"></i>
+              </button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+<p class="text-muted small mt-2">Усього: {{ resources|length }} ресурсів</p>
+{% else %}
+<div class="text-center py-5 text-muted">
+  <i class="bi bi-people display-4 mb-3 d-block"></i>
+  Ресурсів ще немає. <a href="{{ url_for('resources.create') }}">Додати ресурс</a>.
+</div>
+{% endif %}
+{% endblock %}
